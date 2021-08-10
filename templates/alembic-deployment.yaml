@@ -1,0 +1,75 @@
+{{- if .Values.alembic.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "geoportal.fullname" . }}
+  labels:
+{{ include "geoportal.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      {{- include "geoportal.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+      {{- include "geoportal.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ template "geoportal.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+      - name: alembic
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        # Set the command to disable the entrypoint that evaluate templates.
+        args:
+        {{- if .Values.alembic.mainStatic }}
+          - bash
+          - -c
+          - alembic --name=main upgrade head && alembic --name=static upgrade head
+        {{- else }}
+          - alembic
+          - --name=static
+          - upgrade
+          - head
+        {{- end }}
+          {{- if and ( not ( empty .Values.alembic.env ) ) ( not ( empty .Values.alembic.configMapEnv ) ) ( not ( empty .Values.alembic.secretEnv ) ) }}
+          env:
+            {{- range $name, $value := .Values.alembic.env }}
+            - name: {{ $name | quote }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- range $name, $value := .Values.alembic.configMapEnv }}
+            - name: {{ $name | quote }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $value.name | quote }}
+                  key: {{ $value.key | quote }}
+            {{- end }}
+            {{- range $name, $value := .Values.alembic.secretEnv }}
+            - name: {{ $name | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $value.name | quote }}
+                  key: {{ $value.key | quote }}
+            {{- end }}
+          {{- end }}
+          terminationMessagePolicy: FallbackToLogsOnError
+          resources:
+            {{- toYaml .Values.alembic.resources | nindent 12 }}
+      containers:
+      - name: sleep
+        image: busybox:latest
+        args:
+          - sleep
+          - infinity
+{{- end }}

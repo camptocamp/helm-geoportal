@@ -1,12 +1,15 @@
-# Default values for mapserver.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
 nameOverride: ''
 fullnameOverride: ''
 
 imagePullSecrets: []
 replicaCount: 1
+
+entrypoint: /
+nbThreads: 10
+nbProcesses: 2
+gunicorn_config: ''
+timeout: 120 # request timeout in seconds
+healthCheckLevel: 0
 
 env: {}
 # Inject env from configmap
@@ -17,16 +20,16 @@ configMapEnv: {}
 secretEnv: {}
 
 image:
-  repository: camptocamp/mapserver
-  tag: master
+  repository: camptocamp/geomapfish
+  tag: latest
+  sha:
   pullPolicy: IfNotPresent
 
 config:
-  enabled: false
-  folder: /etc/apache
   image:
-    repository:
-    tag: master
+    repository: camptocamp/<project>-config
+    tag: latest
+    sha:
   env: {}
   # Inject env from configmap
   # <env>:
@@ -36,13 +39,24 @@ config:
   secretEnv: {}
   resources: {}
 
-apacheExporter:
-  enabled: true
-  image:
-    repository: quay.io/lusitaniae/apache-exporter
-    # repository: bitnami/apache-exporter
-    tag: 0.7.0
-  resources: {}
+alembic:
+  enabled: false
+
+postgresql:
+  schema: main
+  staticSchema: main_static
+  statementTimeout: 30000 # milliseconds
+
+statsd:
+  url: monitoring-statsd:9125
+
+sentry:
+  hostname: o330647.ingest.sentry.io
+  key: sentry-key
+  project: sentry-project
+
+profiler:
+  enabled: false
 
 serviceAccount:
   # Specifies whether a service account should be created

@@ -1,40 +1,43 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "apache.fullname" . }}
+  name: {{ include "geoportal.fullname" . }}
   labels:
-{{ include "apache.labels" . | indent 4 }}
+{{ include "geoportal.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
     type: RollingUpdate
   selector:
     matchLabels:
-      {{- include "apache.selectorLabels" . | nindent 6 }}
+      {{- include "geoportal.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-      {{- include "apache.selectorLabels" . | nindent 8 }}
+      {{- include "geoportal.selectorLabels" . | nindent 8 }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ template "apache.serviceAccountName" . }}
+      serviceAccountName: {{ template "geoportal.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.config.enable }}
       initContainers:
-        - name: apache-config
+        - name: config
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- if .Values.config.image.sha }}
+          image: "{{ .Values.config.image.repository }}@sha256:{{ .Values.config.image.sha }}"
+          {{- else }}
           image: "{{ .Values.config.image.repository }}:{{ .Values.config.image.tag }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          args: ['bash', '-c', 'cp -a {{ .Values.config.folder }}/* /etc/config-volume/']
+          args: ['bash', '-c', 'cp -a /etc/geomapfish/* /etc/geomapfish-volume/ && cp -a /etc/gunicorn/* /etc/gunicorn-volume/']
           volumeMounts:
             - mountPath: /etc/config-volume
               name: configs
-          {{- if and ( not ( empty .Values.env ) ) ( not ( empty .Values.configMapEnv ) ) ( not ( empty .Values.secretEnv ) ) }}
+          {{- if and ( not ( empty .Values.config.env ) ) ( not ( empty .Values.config.configMapEnv ) ) ( not ( empty .Values.config.secretEnv ) ) }}
           env:
             {{- range $name, $value := .Values.config.env }}
             - name: {{ $name | quote }}
@@ -58,12 +61,15 @@ spec:
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
             {{- toYaml .Values.config.resources | nindent 12 }}
-      {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: geoportal
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- if .Values.image.sha }}
+          image: "{{ .Values.image.repository }}@sha256:{{ .Values.image.sha }}"
+          {{- else }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if and ( not ( empty .Values.env ) ) ( not ( empty .Values.configMapEnv ) ) ( not ( empty .Values.secretEnv ) ) }}
           env:
@@ -88,51 +94,36 @@ spec:
           {{- end }}
           terminationMessagePolicy: FallbackToLogsOnError
           volumeMounts:
-            - mountPath: {{ .Values.config.folder }}
-              name: configs
-              readOnly: false
-            - mountPath: /tmp
-              name: tmp-volume
+            - mountPath: /etc/geomapfish
+              name: geomapfish
+              readOnly: true
+            - mountPath: /etc/gunicorn
+              name: gunicorn
+              readOnly: true
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: "{{ .Values.entrypoint }}c2c/health_check?max_level=0"
+              port: http
+            initialDelaySeconds: 10
+            timeoutSeconds: 30
+            periodSeconds: 20
           readinessProbe:
             httpGet:
-              path: /
+              path: "{{ .Values.entrypoint }}c2c/health_check?max_level={{ .Values.healthCheckLevel }}"
               port: http
-            initialDelaySeconds: 5
-            timeoutSeconds: 10
+            initialDelaySeconds: 10
+            timeoutSeconds: 30
             periodSeconds: 20
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-        {{- if .Values.apacheExporter.enabled }}
-        - name: apache-exporter
-          image: "{{ .Values.apacheExporter.image.repository }}:{{ .Values.apacheExporter.image.tag }}"
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          args:
-            - '--scrape_uri=http://{{ include "apache.fullname" . }}/server-status-remote?auto'
-          terminationMessagePolicy: FallbackToLogsOnError
-          ports:
-            - name: prometheus
-              containerPort: 9117
-              protocol: TCP
-          readinessProbe:
-            httpGet:
-              path: /
-              port: prometheus
-            initialDelaySeconds: 5
-            timeoutSeconds: 10
-            periodSeconds: 20
-          resources:
-            {{- toYaml .Values.apacheExporter.resources | nindent 12 }}
-        {{- end }}
       volumes:
         - name: configs
           emptyDir: {}
-        - name: tmp-volume
+        - name: gunicorn
           emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -149,7 +140,7 @@ spec:
               - key: app.kubernetes.io/name
                 operator: In
                 values:
-                - {{ include "apache.name" . }}
+                - {{ include "geoportal.name" . }}
               - key: app.kubernetes.io/instance
                 operator: In
                 values:
