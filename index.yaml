@@ -3,6 +3,19 @@ entries:
   geoportal:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2021-08-11T14:08:02.230536778Z"
+    description: A Helm chart for geoportal
+    digest: 17417342a00a2b7814b242d7eb8a8a973e13537ea19311ab2df174be53d8b10b
+    home: http://geomapfish.org/
+    icon: http://geomapfish.org/images/brand/logo.png
+    name: geoportal
+    sources:
+    - https://github.com/camptocamp/c2cgeoportal
+    urls:
+    - https://github.com/camptocamp/helm-geoportal/releases/download/0.1.1/geoportal-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2021-08-11T13:50:59.618134334Z"
     description: A Helm chart for geoportal
     digest: 9bc7647ded2e620c88d149888e31e5dfa1eef4459e0b96082b5a202eaebf3f18
@@ -14,4 +27,4 @@ entries:
     urls:
     - https://github.com/camptocamp/helm-geoportal/releases/download/0.1.0/geoportal-0.1.0.tgz
     version: 0.1.0
-generated: "2021-08-11T13:50:59.618742637Z"
+generated: "2021-08-11T14:08:02.230543578Z"
