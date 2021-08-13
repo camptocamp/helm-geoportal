@@ -1,0 +1,11 @@
+alembic:
+  enabled: true
+ingress:
+  enabled: true
+  hosts:
+    - host: gmf.local
+      paths:
+        - /
+serviceAccount:
+  create: true
+  name: full

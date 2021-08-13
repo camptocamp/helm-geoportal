@@ -33,8 +33,13 @@ jobs:
         run: c2cciutils-checks
 
       - uses: azure/setup-helm@v1
+      - run: helm dependency update .
       - run: helm lint .
-      - run: helm template test .
+      - run: helm template --namespace=default test . > tests/actual.yaml
+      - run: diff --ignore-trailing-space tests/actual.yaml tests/expected.yaml
+      - run: helm lint --values=tests/full.yaml .
+      - run: helm template --namespace=default --values=tests/full.yaml test . > tests/full-actual.yaml
+      - run: diff --ignore-trailing-space tests/full-actual.yaml tests/full-expected.yaml
 
       - name: Publish
         run: c2cciutils-publish
