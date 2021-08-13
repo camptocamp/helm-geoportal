@@ -1,98 +1,35 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "geoportal.fullname" . }}
-  labels:
-{{ include "geoportal.labels" . | indent 4 }}
+  name: {{ include "common.fullname" ( dict "root" . "service" .Values ) }}
+  labels: {{ include "common.labels" ( dict "root" . "service" .Values ) | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
     type: RollingUpdate
   selector:
-    matchLabels:
-      {{- include "geoportal.selectorLabels" . | nindent 6 }}
+    matchLabels: {{- include "common.selectorLabels" ( dict "root" . "service" .Values ) | nindent 6 }}
   template:
     metadata:
-      labels:
-      {{- include "geoportal.selectorLabels" . | nindent 8 }}
-    spec:
-    {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
-      serviceAccountName: {{ template "geoportal.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      labels: {{- include "common.selectorLabels" ( dict "root" . "service" .Values ) | nindent 8 }}
+    spec: {{- include "common.podConfig" ( dict
+          "root" .
+          "service" .Values
+          "affinitySelector" (dict
+            "app.kubernetes.io/instance" .Release.Name
+            "app.kubernetes.io/name" ( include "common.name" ( dict "root" . "service" .Values.sub ) )
+            "app.kubernetes.io/component" "main"
+          )) | nindent 6 }}
       initContainers:
         - name: config
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          {{- if .Values.config.image.sha }}
-          image: "{{ .Values.config.image.repository }}@sha256:{{ .Values.config.image.sha }}"
-          {{- else }}
-          image: "{{ .Values.config.image.repository }}:{{ .Values.config.image.tag }}"
-          {{- end }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- include "common.containerConfig" ( dict "root" . "container" .Values.config ) | nindent 10 }}
           args: ['bash', '-c', 'cp -a /etc/geomapfish/* /etc/geomapfish-volume/ && cp -a /etc/gunicorn/* /etc/gunicorn-volume/']
           volumeMounts:
             - mountPath: /etc/config-volume
               name: configs
-          {{- if and ( not ( empty .Values.config.env ) ) ( not ( empty .Values.config.configMapEnv ) ) ( not ( empty .Values.config.secretEnv ) ) }}
-          env:
-            {{- range $name, $value := .Values.config.env }}
-            - name: {{ $name | quote }}
-              value: {{ $value | quote }}
-            {{- end }}
-            {{- range $name, $value := .Values.config.configMapEnv }}
-            - name: {{ $name | quote }}
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ $value.name | quote }}
-                  key: {{ $value.key | quote }}
-            {{- end }}
-            {{- range $name, $value := .Values.config.secretEnv }}
-            - name: {{ $name | quote }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $value.name | quote }}
-                  key: {{ $value.key | quote }}
-            {{- end }}
-          {{- end }}
-          terminationMessagePolicy: FallbackToLogsOnError
-          resources:
-            {{- toYaml .Values.config.resources | nindent 12 }}
       containers:
         - name: geoportal
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          {{- if .Values.image.sha }}
-          image: "{{ .Values.image.repository }}@sha256:{{ .Values.image.sha }}"
-          {{- else }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          {{- end }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- if and ( not ( empty .Values.env ) ) ( not ( empty .Values.configMapEnv ) ) ( not ( empty .Values.secretEnv ) ) }}
-          env:
-            {{- range $name, $value := .Values.env }}
-            - name: {{ $name | quote }}
-              value: {{ $value | quote }}
-            {{- end }}
-            {{- range $name, $value := .Values.configMapEnv }}
-            - name: {{ $name | quote }}
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ $value.name | quote }}
-                  key: {{ $value.key | quote }}
-            {{- end }}
-            {{- range $name, $value := .Values.config.secretEnv }}
-            - name: {{ $name | quote }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $value.name | quote }}
-                  key: {{ $value.key | quote }}
-            {{- end }}
-          {{- end }}
-          terminationMessagePolicy: FallbackToLogsOnError
+          {{- include "common.containerConfig" ( dict "root" . "container" .Values ) | nindent 10 }}
           volumeMounts:
             - mountPath: /etc/geomapfish
               name: geomapfish
@@ -125,29 +62,3 @@ spec:
           emptyDir: {}
         - name: gunicorn
           emptyDir: {}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      affinity:
-      {{-   if .Values.affinity }}
-      {{      toYaml .Values.affinity | indent 2 }}
-      {{-   else }}
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                - {{ include "geoportal.name" . }}
-              - key: app.kubernetes.io/instance
-                operator: In
-                values:
-                - {{ .Release.Name }}
-            topologyKey: "kubernetes.io/hostname"
-      {{- end }}
-    {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}

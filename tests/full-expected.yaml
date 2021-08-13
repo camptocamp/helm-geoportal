@@ -1,0 +1,308 @@
+---
+# Source: geoportal/templates/pdb.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: test-geoportal
+  labels:
+    helm.sh/chart: geoportal-0.1.0
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: geoportal
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/component: main
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: geoportal
+      app.kubernetes.io/instance: test
+      app.kubernetes.io/component: main
+---
+# Source: geoportal/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: full
+  labels:
+    helm.sh/chart: geoportal-0.1.0
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: geoportal
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/component: main
+---
+# Source: geoportal/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-geoportal-env
+  labels:
+    helm.sh/chart: geoportal-0.1.0
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: geoportal
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/component: main
+data:
+  PGOPTIONS: "-c statement_timeout=30000"
+  GUNICORN_PARAMS: >-
+    --bind=:8080
+    --worker-class=gthread
+    --threads=10
+    --workers=2
+    --max-requests=2000
+    --max-requests-jitter=200
+    --timeout=120
+    --worker-tmp-dir=/dev/shm
+  SENTRY_URL: https://sentry-key@o330647.ingest.sentry.io/sentry-project
+  TILECLOUDCHAIN_INTERNAL_URL: http://test-geoportal-tilecloudchain/
+  GEOPORTAL_INTERNAL_URL: http://test-geoportal-geoportal/
+  MAPSERVER_URL: http://test-geoportal-mapserver/
+  QGISSERVER_URL: http://test-geoportal-qgisserver/
+  GEOPORTAL_INTERNAL_HOST: test-geoportal-geoportal
+  TILECLOUDCHAIN_INTERNAL_HOST: test-geoportal-tilecloudchain
+  VISIBLE_WEB_HOST: gmf.local
+  VISIBLE_ENTRY_POINT: /
+  VISIBLE_WEB_HOST_RE_ESCAPED: "gmf\\.local"
+  VISIBLE_ENTRY_POINT_RE_ESCAPED: "/"
+  MAPSERVER_DATA_SUBSELECT: >
+    SELECT ST_Collect(ra.area)
+    FROM main.restrictionarea AS ra,
+    main.role_restrictionarea AS rra,
+    main.layer_restrictionarea AS lra,
+    main.treeitem AS la
+    WHERE rra.role_id in (%role_ids%) AND rra.restrictionarea_id = ra.id
+    AND lra.restrictionarea_id = ra.id AND lra.layer_id = la.id AND la.name =
+  MAPSERVER_DATA_NOAREA_SUBSELECT: >
+    SELECT rra.role_id
+    FROM main.restrictionarea AS ra,
+    main.role_restrictionarea AS rra,
+    main.layer_restrictionarea AS lra,
+    main.treeitem AS la
+    WHERE rra.restrictionarea_id = ra.id AND lra.restrictionarea_id = ra.id
+    AND lra.layer_id = la.id AND la.name =
+  MAPSERVER_JOIN_TABLES: >
+    main.restrictionarea AS ra,
+    main.role_restrictionarea AS rra,
+    main.layer_restrictionarea AS lra,
+    main.treeitem AS la
+  MAPSERVER_JOIN_WHERE: >
+    rra.role_id in (%role_ids%) AND rra.restrictionarea_id = ra.id AND
+    lra.restrictionarea_id = ra.id AND lra.layer_id = la.id AND la.name =
+---
+# Source: geoportal/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-geoportal
+  labels:
+    helm.sh/chart: geoportal-0.1.0
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: geoportal
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/component: main
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: geoportal
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/component: main
+---
+# Source: geoportal/templates/alembic-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-geoportal
+  labels:
+    helm.sh/chart: geoportal-0.1.0
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: geoportal
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/component: main
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: geoportal
+      app.kubernetes.io/instance: test
+      app.kubernetes.io/component: main
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: geoportal
+        app.kubernetes.io/instance: test
+        app.kubernetes.io/component: main
+    spec:
+
+      serviceAccountName: full
+      securityContext:
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 33
+      affinity:
+        {}
+      initContainers:
+        - name: alembic
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 33
+          image: "camptocamp/geomapfish:latest"
+          imagePullPolicy: IfNotPresent
+          terminationMessagePolicy: FallbackToLogsOnError
+          resources:
+            null
+          args:
+            - alembic
+            - --name=static
+            - upgrade
+            - head
+      containers:
+        - name: sleep
+          image: busybox:latest
+          args:
+            - sleep
+            - infinity
+---
+# Source: geoportal/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-geoportal
+  labels:
+    helm.sh/chart: geoportal-0.1.0
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: geoportal
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/component: main
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: geoportal
+      app.kubernetes.io/instance: test
+      app.kubernetes.io/component: main
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: geoportal
+        app.kubernetes.io/instance: test
+        app.kubernetes.io/component: main
+    spec:
+
+      serviceAccountName: full
+      securityContext:
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 33
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - main
+              - key: app.kubernetes.io/instance
+                operator: In
+                values:
+                - test
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                - geoportal
+            topologyKey: "kubernetes.io/hostname"
+      initContainers:
+        - name: config
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 33
+          image: "camptocamp/<project>-config:latest"
+          imagePullPolicy: IfNotPresent
+          terminationMessagePolicy: FallbackToLogsOnError
+          resources:
+            {}
+          args: ['bash', '-c', 'cp -a /etc/geomapfish/* /etc/geomapfish-volume/ && cp -a /etc/gunicorn/* /etc/gunicorn-volume/']
+          volumeMounts:
+            - mountPath: /etc/config-volume
+              name: configs
+      containers:
+        - name: geoportal
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 33
+          image: "camptocamp/geomapfish:latest"
+          imagePullPolicy: IfNotPresent
+          terminationMessagePolicy: FallbackToLogsOnError
+          resources:
+            {}
+          volumeMounts:
+            - mountPath: /etc/geomapfish
+              name: geomapfish
+              readOnly: true
+            - mountPath: /etc/gunicorn
+              name: gunicorn
+              readOnly: true
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: "/c2c/health_check?max_level=0"
+              port: http
+            initialDelaySeconds: 10
+            timeoutSeconds: 30
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: "/c2c/health_check?max_level=0"
+              port: http
+            initialDelaySeconds: 10
+            timeoutSeconds: 30
+            periodSeconds: 20
+          resources:
+            {}
+      volumes:
+        - name: configs
+          emptyDir: {}
+        - name: gunicorn
+          emptyDir: {}
+---
+# Source: geoportal/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: test-geoportal
+  labels:
+    helm.sh/chart: geoportal-0.1.0
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: geoportal
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/component: main
+spec:
+  rules:
+    - host: "gmf.local"
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: test-geoportal
+              servicePort: 80

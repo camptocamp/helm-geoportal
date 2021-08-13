@@ -19,7 +19,7 @@ env: {}
 configMapEnv: {}
 secretEnv: {}
 
-image:
+image: &image
   repository: camptocamp/geomapfish
   tag: latest
   sha:
@@ -41,6 +41,8 @@ config:
 
 alembic:
   enabled: false
+  image: *image
+  serviceName: alembic
 
 postgresql:
   schema: main

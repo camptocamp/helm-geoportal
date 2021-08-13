@@ -2,74 +2,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "geoportal.fullname" . }}
-  labels:
-{{ include "geoportal.labels" . | indent 4 }}
+  name: {{ include "common.fullname" ( dict "root" . "service" .Values ) }}
+  labels: {{ include "common.labels" ( dict "root" . "service" .Values ) | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
     type: RollingUpdate
   selector:
-    matchLabels:
-      {{- include "geoportal.selectorLabels" . | nindent 6 }}
+    matchLabels: {{- include "common.selectorLabels" ( dict "root" . "service" .Values ) | nindent 6 }}
   template:
     metadata:
-      labels:
-      {{- include "geoportal.selectorLabels" . | nindent 8 }}
-    spec:
-    {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
-      serviceAccountName: {{ template "geoportal.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      labels: {{- include "common.selectorLabels" ( dict "root" . "service" .Values ) | nindent 8 }}
+    spec: {{- include "common.podConfig" ( dict "root" . "service" .Values.alembic ) | nindent 6 }}
       initContainers:
-      - name: alembic
-        securityContext:
-          {{- toYaml .Values.securityContext | nindent 12 }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # Set the command to disable the entrypoint that evaluate templates.
-        args:
-        {{- if .Values.alembic.mainStatic }}
-          - bash
-          - -c
-          - alembic --name=main upgrade head && alembic --name=static upgrade head
-        {{- else }}
-          - alembic
-          - --name=static
-          - upgrade
-          - head
-        {{- end }}
-          {{- if and ( not ( empty .Values.alembic.env ) ) ( not ( empty .Values.alembic.configMapEnv ) ) ( not ( empty .Values.alembic.secretEnv ) ) }}
-          env:
-            {{- range $name, $value := .Values.alembic.env }}
-            - name: {{ $name | quote }}
-              value: {{ $value | quote }}
-            {{- end }}
-            {{- range $name, $value := .Values.alembic.configMapEnv }}
-            - name: {{ $name | quote }}
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ $value.name | quote }}
-                  key: {{ $value.key | quote }}
-            {{- end }}
-            {{- range $name, $value := .Values.alembic.secretEnv }}
-            - name: {{ $name | quote }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $value.name | quote }}
-                  key: {{ $value.key | quote }}
-            {{- end }}
+        - name: alembic
+          {{- include "common.containerConfig" ( dict "root" . "container" .Values.alembic ) | nindent 10 }}
+          args:
+          {{- if .Values.alembic.mainStatic }}
+            - bash
+            - -c
+            - alembic --name=main upgrade head && alembic --name=static upgrade head
+          {{- else }}
+            - alembic
+            - --name=static
+            - upgrade
+            - head
           {{- end }}
-          terminationMessagePolicy: FallbackToLogsOnError
-          resources:
-            {{- toYaml .Values.alembic.resources | nindent 12 }}
       containers:
-      - name: sleep
-        image: busybox:latest
-        args:
-          - sleep
-          - infinity
+        - name: sleep
+          image: busybox:latest
+          args:
+            - sleep
+            - infinity
 {{- end }}

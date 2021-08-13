@@ -7,3 +7,7 @@ home: http://geomapfish.org/
 sources:
   - https://github.com/camptocamp/c2cgeoportal
 icon: http://geomapfish.org/images/brand/logo.png
+dependencies:
+  - name: common
+    repository: https://camptocamp.github.io/helm-common
+    version: 0.1.1
