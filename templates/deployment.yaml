@@ -55,8 +55,6 @@ spec:
             initialDelaySeconds: 10
             timeoutSeconds: 30
             periodSeconds: 20
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
       volumes:
         - name: configs
           emptyDir: {}

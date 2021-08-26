@@ -1,5 +1,3 @@
-alembic:
-  enabled: true
 ingress:
   enabled: true
   hosts:

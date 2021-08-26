@@ -12,12 +12,6 @@ timeout: 120 # request timeout in seconds
 healthCheckLevel: 0
 
 env: {}
-# Inject env from configmap
-# <env>:
-#   name: <configMap name>
-#   key: <configMap key>
-configMapEnv: {}
-secretEnv: {}
 
 image: &image
   repository: camptocamp/geomapfish
@@ -31,34 +25,45 @@ config:
     tag: latest
     sha:
   env: {}
-  # Inject env from configmap
-  # <env>:
-  #   name: <configMap name>
-  #   key: <configMap key>
-  configMapEnv: {}
-  secretEnv: {}
   resources: {}
 
 alembic:
-  enabled: false
+  enabled: true
   image: *image
   serviceName: alembic
-
-postgresql:
-  schema: main
-  staticSchema: main_static
-  statementTimeout: 30000 # milliseconds
+  env: {}
+  resources: {}
 
 statsd:
-  url: monitoring-statsd:9125
+  serviceName: statsd
+  enabled: true
+  image:
+    repository: ghcr.io/camptocamp/c2cwsgiutils
+    tag: 4
+    sha:
+  env: {}
+  resources: {}
 
-sentry:
-  hostname: o330647.ingest.sentry.io
-  key: sentry-key
-  project: sentry-project
+tools:
+  serviceName: tools
+  enabled: true
+  image:
+    repository: camptocamp/geomapfish-tools
+    tag: latest
+    sha:
+  env: {}
+  resources: {}
 
-profiler:
-  enabled: false
+dbstats:
+  enabled: true
+  image:
+    repository: camptocamp/geomapfish
+    tag: latest
+    sha:
+  env: {}
+  resources: {}
+  schemas: []
+  extraDBs: []
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -116,3 +121,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+prometheus:
+  url: http://prometheus-pushgateway.gs-metrics.svc:9091/
