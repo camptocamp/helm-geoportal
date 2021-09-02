@@ -307,7 +307,7 @@ spec:
                 readOnlyRootFilesystem: true
                 runAsNonRoot: true
                 runAsUser: 33
-              image: "camptocamp/geomapfish:latest"
+              image: "camptocamp/c2cwsgiutils:latest"
               imagePullPolicy: IfNotPresent
               terminationMessagePolicy: FallbackToLogsOnError
               resources:
