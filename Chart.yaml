@@ -4,6 +4,10 @@ description: A Helm chart for geoportal
 name: geoportal
 version: 0.1.0
 home: http://geomapfish.org/
+maintainers:
+  - name: Camptocamp-geospatial
+    email: info@camptocamp.com
+    url: https://github.com/camptocamp/c2cgeoportal
 sources:
   - https://github.com/camptocamp/c2cgeoportal
 icon: http://geomapfish.org/images/brand/logo.png

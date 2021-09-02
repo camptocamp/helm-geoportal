@@ -8,7 +8,7 @@ entrypoint: /
 nbThreads: 10
 nbProcesses: 2
 gunicorn_config: ''
-timeout: 120 # request timeout in seconds
+timeout: 120  # request timeout in seconds
 healthCheckLevel: 0
 
 env: {}
@@ -57,7 +57,7 @@ tools:
 dbstats:
   enabled: true
   image:
-    repository: camptocamp/geomapfish
+    repository: camptocamp/c2cwsgiutils
     tag: latest
     sha:
   env: {}
@@ -78,7 +78,7 @@ podSecurityContext:
 
 securityContext:
   runAsNonRoot: true
-  runAsUser: 33 # www-data
+  runAsUser: 33  # www-data
   readOnlyRootFilesystem: true
   # capabilities:
   #   drop:
