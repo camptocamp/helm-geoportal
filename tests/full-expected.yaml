@@ -99,7 +99,6 @@ spec:
       initContainers:
         - name: alembic
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
           image: "camptocamp/geomapfish:latest"
@@ -174,7 +173,6 @@ spec:
       initContainers:
         - name: config
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
           image: "camptocamp/<project>-config:latest"
@@ -189,7 +187,6 @@ spec:
       containers:
         - name: geoportal
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
           image: "camptocamp/geomapfish:latest"
@@ -267,7 +264,6 @@ spec:
       containers:
         - name: tools
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
           image: "camptocamp/geomapfish-tools:latest"
@@ -317,7 +313,6 @@ spec:
           containers:
             - name: dbstats
               securityContext:
-                readOnlyRootFilesystem: true
                 runAsNonRoot: true
                 runAsUser: 33
               image: "camptocamp/c2cwsgiutils:latest"

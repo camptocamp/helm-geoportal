@@ -8,7 +8,7 @@ entrypoint: /
 nbThreads: 10
 nbProcesses: 2
 gunicorn_config: ''
-timeout: 120  # request timeout in seconds
+timeout: 120 # request timeout in seconds
 healthCheckLevel: 0
 
 env: {}
@@ -78,11 +78,15 @@ podSecurityContext:
 
 securityContext:
   runAsNonRoot: true
-  runAsUser: 33  # www-data
+  runAsUser: 33 # www-data
   readOnlyRootFilesystem: true
   # capabilities:
   #   drop:
   #   - ALL
+
+containerSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 33 # www-data
 
 service:
   type: ClusterIP
