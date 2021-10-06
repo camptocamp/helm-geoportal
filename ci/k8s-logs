@@ -2,18 +2,25 @@
 
 kubectl config set-context --current --namespace=default
 
-echo === events ===
+echo ::group::Events
 kubectl get events
+echo ::endgroup::
 
-echo === pods ===
+echo ::group::Continers
+kubectl get containers --output=wide
+echo ::endgroup::
+
+echo ::group::Pods
 kubectl get pods --output=wide
+echo ::endgroup::
 
 for name in $(kubectl get pods --output=name)
 do
-  echo =====================
-  echo $name
-  echo === describe ===
+  echo ::group::$name: Describe
   kubectl describe $name
-  echo === logs ===
+  echo ::endgroup::
+
+  echo ::group::$name: Logs
   kubectl logs $name
+  echo ::endgroup::
 done

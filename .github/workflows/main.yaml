@@ -51,15 +51,18 @@ jobs:
           --no-rollback
           --k3s-server-arg "--no-deploy=traefik,servicelb,metrics-server"
       - run: kubectl version
+      #
       - run: kubectl apply -f tests/expected.yaml
       - run: ci/k8s-wait-deployed
+      - run: ci/k8s-logs
+        if: always()
       - run: kubectl delete -f tests/expected.yaml || true
+
       - run: kubectl apply -f tests/full-expected.yaml
       - run: ci/k8s-wait-deployed
-      - run: kubectl delete -f tests/full-expected.yaml || true
-
-      - run: ci/k8s-logs || true
+      - run: ci/k8s-logs
         if: always()
+      - run: kubectl delete -f tests/full-expected.yaml || true
 
       - name: Publish
         run: c2cciutils-publish

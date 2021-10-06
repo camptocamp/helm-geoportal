@@ -41,7 +41,7 @@ def check_pod_status(pods):
 
 
 def main() -> None:
-    for _ in range(12):
+    for _ in range(20):
         success = True
         deployments = subprocess.run(
             ["kubectl", "get", "deployments", "--output=json"],
