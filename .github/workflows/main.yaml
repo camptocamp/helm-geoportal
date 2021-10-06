@@ -52,6 +52,8 @@ jobs:
           --k3s-server-arg "--no-deploy=traefik,servicelb,metrics-server"
 
       - run: kubectl apply -f tests/expected.yaml
+      - run: sleep 10
+      - run: kubectl get deployments
       - run: ci/k8s-logs || true
         if: always()
       - run: kubectl delete -f tests/expected.yaml
