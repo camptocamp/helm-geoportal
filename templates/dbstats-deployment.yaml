@@ -16,6 +16,7 @@ spec:
         metadata:
           labels: {{- include "common.selectorLabels" ( dict "root" . "service" .Values.dbstats ) | nindent 12 }}
         spec: {{ include "common.podConfig" ( dict "root" . "service" .Values.dbstats ) | nindent 10 }}
+          restartPolicy: Never
           containers:
             - name: dbstats
               {{- include "common.containerConfig" ( dict "root" . "container" .Values.dbstats ) | nindent 14 }}
