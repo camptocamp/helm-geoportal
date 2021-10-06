@@ -8,6 +8,8 @@ config:
   env:
     VISIBLE_WEB_HOST:
       value: example.com
+    PGSCHEMA:
+      value: main
 
 alembic:
   image:

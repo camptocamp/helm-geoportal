@@ -24,7 +24,9 @@ config:
     repository: camptocamp/<project>-config
     tag: latest
     sha:
-  env: {}
+  env:
+    VISIBLE_ENTRY_POINT:
+      value: /
   resources: {}
 
 alembic:

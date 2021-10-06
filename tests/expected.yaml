@@ -183,6 +183,10 @@ spec:
           image: "camptocamp/geomapfishdemo-config:prod-2-7"
           imagePullPolicy: IfNotPresent
           env:
+              - name: "PGSCHEMA"
+                value: "main"
+              - name: "VISIBLE_ENTRY_POINT"
+                value: "/"
               - name: "VISIBLE_WEB_HOST"
                 value: "example.com"
           terminationMessagePolicy: FallbackToLogsOnError
