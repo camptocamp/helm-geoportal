@@ -313,6 +313,7 @@ spec:
             runAsUser: 33
           affinity:
             {}
+          restartPolicy: Never
           containers:
             - name: dbstats
               securityContext:
