@@ -214,7 +214,7 @@ spec:
             {}
           volumeMounts:
             - mountPath: /etc/geomapfish
-              name: geomapfish
+              name: configs
               readOnly: true
             - mountPath: /etc/gunicorn
               name: gunicorn
