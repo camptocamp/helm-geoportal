@@ -6,8 +6,8 @@ echo ::group::Events
 kubectl get events
 echo ::endgroup::
 
-echo ::group::Continers
-kubectl get containers --output=wide
+echo ::group::Deployments
+kubectl get deployments --output=wide
 echo ::endgroup::
 
 echo ::group::Pods

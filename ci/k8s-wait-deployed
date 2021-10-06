@@ -32,10 +32,13 @@ def check_pod_status(pods):
         containers_status += pod["status"].get("containerStatuses", [])
 
         for status in containers_status:
-            if status.get("reason") == "CrashLoopBackOff":
+            print(status)
+            if status["state"]["waiting"]["reason"] == "CrashLoopBackOff":
                 continue
             if not status["ready"]:
-                print(f'Container not ready in {pod["metadata"]["name"]}: {status["state"]}')
+                print(
+                    f'Container not ready in {pod["metadata"]["name"]}: {status["state"].get("message", status["state"])}'
+                )
                 return False
     return True
 
