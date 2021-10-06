@@ -1,0 +1,23 @@
+image:
+  tag: 2.7
+
+config:
+  image:
+    repository: camptocamp/geomapfishdemo-config
+    tag: prod-2-7
+
+alembic:
+  image:
+    tag: 2.7
+
+statsd:
+  image:
+    tag: 4
+
+tools:
+  image:
+    tag: 2.7
+
+dbstats:
+  image:
+    tag: 4

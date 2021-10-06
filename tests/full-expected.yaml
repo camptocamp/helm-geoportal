@@ -101,7 +101,7 @@ spec:
           securityContext:
             runAsNonRoot: true
             runAsUser: 33
-          image: "camptocamp/geomapfish:latest"
+          image: "camptocamp/geomapfish:2.7"
           imagePullPolicy: IfNotPresent
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
@@ -175,7 +175,7 @@ spec:
           securityContext:
             runAsNonRoot: true
             runAsUser: 33
-          image: "camptocamp/<project>-config:latest"
+          image: "camptocamp/geomapfishdemo-config:prod-2-7"
           imagePullPolicy: IfNotPresent
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
@@ -189,7 +189,7 @@ spec:
           securityContext:
             runAsNonRoot: true
             runAsUser: 33
-          image: "camptocamp/geomapfish:latest"
+          image: "camptocamp/geomapfish:2.7"
           imagePullPolicy: IfNotPresent
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
@@ -266,7 +266,7 @@ spec:
           securityContext:
             runAsNonRoot: true
             runAsUser: 33
-          image: "camptocamp/geomapfish-tools:latest"
+          image: "camptocamp/geomapfish-tools:2.7"
           imagePullPolicy: IfNotPresent
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
@@ -315,7 +315,7 @@ spec:
               securityContext:
                 runAsNonRoot: true
                 runAsUser: 33
-              image: "camptocamp/c2cwsgiutils:latest"
+              image: "camptocamp/c2cwsgiutils:4"
               imagePullPolicy: IfNotPresent
               terminationMessagePolicy: FallbackToLogsOnError
               resources:

@@ -39,7 +39,7 @@ statsd:
   enabled: true
   image:
     repository: ghcr.io/camptocamp/c2cwsgiutils
-    tag: 4
+    tag: latest
     sha:
   env: {}
   resources: {}

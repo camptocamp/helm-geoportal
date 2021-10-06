@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+
+import json
+import subprocess
+import sys
+import time
+
+
+def check_deployement_status(deployements):
+    for deployment in deployements["items"]:
+        if not deployment["status"]:
+            print(f'Waiting for status for {deployment["metadata"]["name"]}')
+            return False
+        for condition in deployment["status"].get("conditions", []):
+            if not condition["status"]:
+                print(f'Not ready in {deployment["metadata"]["name"]}: {condition["message"]}')
+                return False
+    return True
+
+
+def check_pod_status(pods):
+    for pod in pods["items"]:
+        for condition in pod["status"].get("conditions", []):
+            if not condition["status"]:
+                print(
+                    f'Pod not ready in {pod["metadata"]["name"]}: {condition.get("message", condition["type"])}'
+                )
+                return False
+
+        containers_status = []
+        containers_status += pod["status"].get("initContainerStatuses", [])
+        containers_status += pod["status"].get("containerStatuses", [])
+
+        for status in containers_status:
+            if status.get("reason") == "CrashLoopBackOff":
+                continue
+            if not status["ready"]:
+                print(f'Container not ready in {pod["metadata"]["name"]}: {status["state"]}')
+                return False
+    return True
+
+
+def main() -> None:
+    for _ in range(12):
+        success = True
+        deployments = subprocess.run(
+            ["kubectl", "get", "deployments", "--output=json"],
+            stdout=subprocess.PIPE,
+            check=True,
+        )
+        success &= check_deployement_status(json.loads(deployments.stdout))
+        pods = subprocess.run(
+            ["kubectl", "get", "pods", "--output=json"],
+            stdout=subprocess.PIPE,
+            check=True,
+        )
+        success &= check_pod_status(json.loads(pods.stdout))
+        if success:
+            sys.exit(0)
+        time.sleep(10)
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
