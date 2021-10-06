@@ -91,7 +91,6 @@ spec:
 
       serviceAccountName: full
       securityContext:
-        readOnlyRootFilesystem: true
         runAsNonRoot: true
         runAsUser: 33
       affinity:
@@ -99,7 +98,6 @@ spec:
       initContainers:
         - name: alembic
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
           image: "camptocamp/geomapfish:latest"
@@ -150,7 +148,6 @@ spec:
 
       serviceAccountName: full
       securityContext:
-        readOnlyRootFilesystem: true
         runAsNonRoot: true
         runAsUser: 33
       affinity:
@@ -174,7 +171,6 @@ spec:
       initContainers:
         - name: config
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
           image: "camptocamp/<project>-config:latest"
@@ -189,7 +185,6 @@ spec:
       containers:
         - name: geoportal
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
           image: "camptocamp/geomapfish:latest"
@@ -259,7 +254,6 @@ spec:
 
       serviceAccountName: full
       securityContext:
-        readOnlyRootFilesystem: true
         runAsNonRoot: true
         runAsUser: 33
       affinity:
@@ -267,7 +261,6 @@ spec:
       containers:
         - name: tools
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
           image: "camptocamp/geomapfish-tools:latest"
@@ -309,7 +302,6 @@ spec:
 
           serviceAccountName: full
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
           affinity:
@@ -317,7 +309,6 @@ spec:
           containers:
             - name: dbstats
               securityContext:
-                readOnlyRootFilesystem: true
                 runAsNonRoot: true
                 runAsUser: 33
               image: "camptocamp/c2cwsgiutils:latest"
