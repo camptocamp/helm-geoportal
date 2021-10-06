@@ -1,0 +1,52 @@
+image:
+  tag: 2.7
+
+dbEnv: &dbEnv
+  PGSCHEMA:
+    value: main
+  PGHOST:
+    value: test-pg-postgresql
+  PGHOST_SLAVE:
+    value: test-pg-postgresql
+  PGPORT:
+    value: '5432'
+  PGPORT_SLAVE:
+    value: '5432'
+  PGDATABASE:
+    value: postgres
+  PGPASSWORD:
+    value: mySuperTestingPassword
+  PGUSER:
+    value: postgres
+
+env:
+  <<: *dbEnv
+  AUTHTKT_SECRET:
+    value: '1234567890123456789012345678901234567890123456789012345678901234'
+
+config:
+  image:
+    repository: camptocamp/geomapfishdemo-config
+    tag: prod-2-7
+  env:
+    VISIBLE_WEB_HOST:
+      value: example.com
+
+alembic:
+  image:
+    tag: 2.7
+  mainStatic: true
+  env:
+    <<: *dbEnv
+
+statsd:
+  image:
+    tag: 4
+
+tools:
+  image:
+    tag: 2.7
+
+dbstats:
+  image:
+    tag: 4
