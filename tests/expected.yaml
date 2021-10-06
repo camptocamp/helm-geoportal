@@ -182,6 +182,9 @@ spec:
             runAsUser: 33
           image: "camptocamp/geomapfishdemo-config:prod-2-7"
           imagePullPolicy: IfNotPresent
+          env:
+              - name: "VISIBLE_WEB_HOST"
+                value: "example.com"
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
             {}

@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -eux
 
 kubectl config set-context --current --namespace=default
 
@@ -21,6 +21,6 @@ do
   echo ::endgroup::
 
   echo ::group::$name: Logs
-  kubectl logs $name
+  kubectl logs $name || true
   echo ::endgroup::
 done
