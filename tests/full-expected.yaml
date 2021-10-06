@@ -273,7 +273,7 @@ spec:
            - infinity
 ---
 # Source: geoportal/templates/dbstats-deployment.yaml
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: test-geoportal
