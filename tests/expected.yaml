@@ -38,6 +38,26 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+  selector:
+    app.kubernetes.io/name: geoportal
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/component: main
+---
+# Source: geoportal/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-geoportal
+  labels:
+    helm.sh/chart: geoportal-0.1.0
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: geoportal
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/component: main
+spec:
+  type: ClusterIP
+  ports:
     - port: 80
       targetPort: prometheus
       protocol: TCP
