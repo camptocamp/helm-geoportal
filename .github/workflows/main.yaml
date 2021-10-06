@@ -41,5 +41,27 @@ jobs:
       - run: helm template --namespace=default --values=tests/full.yaml test . > tests/full-actual.yaml
       - run: diff --ignore-trailing-space tests/full-actual.yaml tests/full-expected.yaml
 
+      # Setup k3s/k3d
+      - run: wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | TAG=v4.4.8 bash
+      - run: k3d --version
+      - run: >-
+          k3d cluster create test-cluster-1
+          --no-lb
+          --no-hostip
+          --no-rollback
+          --k3s-server-arg "--no-deploy=traefik,servicelb,metrics-server"
+
+      - run: kubectl apply -f tests/expected.yaml
+      - run: sleep 10
+      - run: kubectl get deployments
+      - run: ci/k8s-logs || true
+        if: always()
+      - run: kubectl delete -f tests/expected.yaml
+      - run: kubectl apply -f tests/full-expected.yaml
+      - run: kubectl delete -f tests/full-expected.yaml
+
+      - run: ci/k8s-logs || true
+        if: always()
+
       - name: Publish
         run: c2cciutils-publish

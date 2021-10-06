@@ -1,0 +1,11 @@
+#!/bin/bash -eu
+
+for name in $(kubectl get deployment --output=name)
+do
+  echo =====================
+  echo $name
+  echo === describe ===
+  kubectl describe $name
+  echo === logs ===
+  kubectl logs $name
+done
