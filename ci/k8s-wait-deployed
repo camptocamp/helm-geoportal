@@ -35,13 +35,14 @@ def check_pod_status(pods):
             if not is_init and not good:
                 good = status["started"]
             # Ignore unable to update the database
-            if not status["name"] == "alembic" and not good:
+            if status["name"] == "alembic" and not good:
                 good = status["state"].get("waiting", {}).get("reason") == "CrashLoopBackOff"
 
             if not good:
-                print(
-                    f'::group::Container not ready in {pod["metadata"]["name"]}: {status["state"].get("message", status["state"])}'
+                status_message = status["state"].get(
+                    "message", status["state"].get("waiting", {}).get("message", "")
                 )
+                print(f'::group::Container not ready in {pod["metadata"]["name"]}: {status_message}')
                 print(json.dumps(status))
                 print("::endgroup::")
                 return False
