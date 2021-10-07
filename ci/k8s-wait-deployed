@@ -25,22 +25,32 @@ def check_pod_status(pods):
                 print(
                     f'::group::Pod not ready in {pod["metadata"]["name"]}: {condition.get("message", condition["type"])}'
                 )
-                print(status)
+                print(json.dumps(condition))
                 print("::endgroup::")
                 return False
 
-        containers_status = []
-        containers_status += pod["status"].get("initContainerStatuses", [])
-        containers_status += pod["status"].get("containerStatuses", [])
-
-        for status in containers_status:
-            if not status["ready"] and status["state"].get("waiting", {}).get("reason") != "CrashLoopBackOff":
+        def check_container_status(pod, status, is_init=False):
+            good = status["ready"]
+            if not is_init and not good:
+                good = (
+                    status["started"] | status["state"].get("waiting", {}).get("reason") == "CrashLoopBackOff"
+                )
+            if not good:
                 print(
                     f'::group::Container not ready in {pod["metadata"]["name"]}: {status["state"].get("message", status["state"])}'
                 )
-                print(status)
+                print(json.dumps(status))
                 print("::endgroup::")
                 return False
+            return True
+
+        for status in pod["status"].get("initContainerStatuses", []):
+            if not check_container_status(pod, status, True):
+                return False
+        for status in pod["status"].get("containerStatuses", []):
+            if not check_container_status(pod, status):
+                return False
+
     return True
 
 
