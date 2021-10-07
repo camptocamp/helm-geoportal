@@ -32,8 +32,8 @@ def check_pod_status(pods):
         def check_container_status(pod, status, is_init=False):
             good = status["ready"]
             if not is_init and not good:
-                good = (
-                    status["started"] | status["state"].get("waiting", {}).get("reason") == "CrashLoopBackOff"
+                good = status["started"] | (
+                    status["state"].get("waiting", {}).get("reason") == "CrashLoopBackOff"
                 )
             if not good:
                 print(
