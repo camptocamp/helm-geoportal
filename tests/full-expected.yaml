@@ -134,8 +134,9 @@ spec:
         - name: sleep
           image: busybox:latest
           args:
-            - sleep
-            - infinity
+            - tail
+            - -f
+            - /dev/null
 ---
 # Source: geoportal/templates/deployment.yaml
 apiVersion: apps/v1

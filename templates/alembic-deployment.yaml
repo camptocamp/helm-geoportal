@@ -32,6 +32,7 @@ spec:
         - name: sleep
           image: busybox:latest
           args:
-            - sleep
-            - infinity
+            - tail
+            - -f
+            - /dev/null
 {{- end }}
