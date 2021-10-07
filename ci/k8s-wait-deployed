@@ -44,9 +44,9 @@ def check_pod_status(pods):
             if not good:
                 waiting = status["state"].get("waiting")
                 terminated = status["state"].get("terminated")
-                state = waiting | terminated
+                state = waiting if waiting else terminated
                 status_message = state.get("message", state.get("reason", "")) if state else ""
-                status_message = status_message.trim()
+                status_message = status_message.strip()
                 print(f'::group::Container not ready in {pod["metadata"]["name"]}: {status_message}')
                 print(json.dumps(status))
                 print("::endgroup::")
