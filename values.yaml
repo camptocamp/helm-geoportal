@@ -27,6 +27,8 @@ config:
   env:
     VISIBLE_ENTRY_POINT:
       value: /
+    VISIBLE_WEB_PROTOCOL:
+      value: https
   resources: {}
 
 alembic:

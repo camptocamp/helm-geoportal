@@ -189,6 +189,8 @@ spec:
                 value: "/"
               - name: "VISIBLE_WEB_HOST"
                 value: "example.com"
+              - name: "VISIBLE_WEB_PROTOCOL"
+                value: "https"
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
             {}
