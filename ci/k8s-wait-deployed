@@ -31,10 +31,13 @@ def check_pod_status(pods):
 
         def check_container_status(pod, status, is_init=False):
             good = status["ready"]
+            # Ignore unable to start Gunicorn
             if not is_init and not good:
-                good = status["started"] | (
-                    status["state"].get("waiting", {}).get("reason") == "CrashLoopBackOff"
-                )
+                good = status["started"]
+            # Ignore unable to update the database
+            if not status["name"] == "alembic" and not good:
+                good = status["state"].get("waiting", {}).get("reason") == "CrashLoopBackOff"
+
             if not good:
                 print(
                     f'::group::Container not ready in {pod["metadata"]["name"]}: {status["state"].get("message", status["state"])}'
