@@ -14,7 +14,7 @@ healthCheckLevel: 0
 env: {}
 
 image: &image
-  repository: camptocamp/geomapfish
+  repository: camptocamp/geomapfishapp-geoportal
   tag: latest
   sha:
   pullPolicy: IfNotPresent
@@ -24,7 +24,11 @@ config:
     repository: camptocamp/<project>-config
     tag: latest
     sha:
-  env: {}
+  env:
+    VISIBLE_ENTRY_POINT:
+      value: /
+    VISIBLE_WEB_PROTOCOL:
+      value: https
   resources: {}
 
 alembic:
@@ -39,7 +43,7 @@ statsd:
   enabled: true
   image:
     repository: ghcr.io/camptocamp/c2cwsgiutils
-    tag: 4
+    tag: latest
     sha:
   env: {}
   resources: {}
@@ -79,7 +83,6 @@ podSecurityContext:
 securityContext:
   runAsNonRoot: true
   runAsUser: 33 # www-data
-  readOnlyRootFilesystem: true
   # capabilities:
   #   drop:
   #   - ALL

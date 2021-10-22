@@ -4,6 +4,7 @@ ingress:
     - host: gmf.local
       paths:
         - /
+
 serviceAccount:
   create: true
   name: full

@@ -1,6 +1,6 @@
 ---
 # Source: geoportal/templates/pdb.yaml
-apiVersion: policy/v1beta1
+apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: test-geoportal
@@ -38,6 +38,26 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+  selector:
+    app.kubernetes.io/name: geoportal
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/component: main
+---
+# Source: geoportal/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-geoportal
+  labels:
+    helm.sh/chart: geoportal-0.1.0
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: geoportal
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/component: main
+spec:
+  type: ClusterIP
+  ports:
     - port: 80
       targetPort: prometheus
       protocol: TCP
@@ -78,7 +98,6 @@ spec:
 
       serviceAccountName: default
       securityContext:
-        readOnlyRootFilesystem: true
         runAsNonRoot: true
         runAsUser: 33
       affinity:
@@ -86,25 +105,41 @@ spec:
       initContainers:
         - name: alembic
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
-          image: "camptocamp/geomapfish:latest"
+          image: "camptocamp/geomapfishapp-geoportal:2.7"
           imagePullPolicy: IfNotPresent
+          env:
+              - name: "PGDATABASE"
+                value: "postgres"
+              - name: "PGHOST"
+                value: "test-pg-postgresql"
+              - name: "PGHOST_SLAVE"
+                value: "test-pg-postgresql"
+              - name: "PGPASSWORD"
+                value: "mySuperTestingPassword"
+              - name: "PGPORT"
+                value: "5432"
+              - name: "PGPORT_SLAVE"
+                value: "5432"
+              - name: "PGSCHEMA"
+                value: "main"
+              - name: "PGUSER"
+                value: "postgres"
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
             {}
           args:
-            - alembic
-            - --name=static
-            - upgrade
-            - head
+            - bash
+            - -c
+            - alembic --name=main upgrade head && alembic --name=static upgrade head
       containers:
         - name: sleep
           image: busybox:latest
           args:
-            - sleep
-            - infinity
+            - tail
+            - -f
+            - /dev/null
 ---
 # Source: geoportal/templates/deployment.yaml
 apiVersion: apps/v1
@@ -137,7 +172,6 @@ spec:
 
       serviceAccountName: default
       securityContext:
-        readOnlyRootFilesystem: true
         runAsNonRoot: true
         runAsUser: 33
       affinity:
@@ -161,32 +195,58 @@ spec:
       initContainers:
         - name: config
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
-          image: "camptocamp/<project>-config:latest"
+          image: "camptocamp/geomapfishdemo-config:prod-2-7"
           imagePullPolicy: IfNotPresent
+          env:
+              - name: "VISIBLE_ENTRY_POINT"
+                value: "/"
+              - name: "VISIBLE_WEB_HOST"
+                value: "example.com"
+              - name: "VISIBLE_WEB_PROTOCOL"
+                value: "https"
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
             {}
           args: ['bash', '-c', 'cp -a /etc/geomapfish/* /etc/geomapfish-volume/ && cp -a /etc/gunicorn/* /etc/gunicorn-volume/']
           volumeMounts:
-            - mountPath: /etc/config-volume
+            - mountPath: /etc/geomapfish-volume
               name: configs
+            - mountPath: /etc/gunicorn-volume
+              name: gunicorn
       containers:
         - name: geoportal
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
-          image: "camptocamp/geomapfish:latest"
+          image: "camptocamp/geomapfishapp-geoportal:2.7"
           imagePullPolicy: IfNotPresent
+          env:
+              - name: "AUTHTKT_SECRET"
+                value: "1234567890123456789012345678901234567890123456789012345678901234"
+              - name: "PGDATABASE"
+                value: "postgres"
+              - name: "PGHOST"
+                value: "test-pg-postgresql"
+              - name: "PGHOST_SLAVE"
+                value: "test-pg-postgresql"
+              - name: "PGPASSWORD"
+                value: "mySuperTestingPassword"
+              - name: "PGPORT"
+                value: "5432"
+              - name: "PGPORT_SLAVE"
+                value: "5432"
+              - name: "PGSCHEMA"
+                value: "main"
+              - name: "PGUSER"
+                value: "postgres"
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
             {}
           volumeMounts:
             - mountPath: /etc/geomapfish
-              name: geomapfish
+              name: configs
               readOnly: true
             - mountPath: /etc/gunicorn
               name: gunicorn
@@ -246,7 +306,6 @@ spec:
 
       serviceAccountName: default
       securityContext:
-        readOnlyRootFilesystem: true
         runAsNonRoot: true
         runAsUser: 33
       affinity:
@@ -254,10 +313,9 @@ spec:
       containers:
         - name: tools
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
-          image: "camptocamp/geomapfish-tools:latest"
+          image: "camptocamp/geomapfish-tools:2.7"
           imagePullPolicy: IfNotPresent
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
@@ -267,7 +325,7 @@ spec:
            - infinity
 ---
 # Source: geoportal/templates/dbstats-deployment.yaml
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: test-geoportal
@@ -296,18 +354,17 @@ spec:
 
           serviceAccountName: default
           securityContext:
-            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 33
           affinity:
             {}
+          restartPolicy: Never
           containers:
             - name: dbstats
               securityContext:
-                readOnlyRootFilesystem: true
                 runAsNonRoot: true
                 runAsUser: 33
-              image: "camptocamp/c2cwsgiutils:latest"
+              image: "camptocamp/c2cwsgiutils:4"
               imagePullPolicy: IfNotPresent
               terminationMessagePolicy: FallbackToLogsOnError
               resources:

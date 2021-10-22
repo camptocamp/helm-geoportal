@@ -32,14 +32,35 @@ jobs:
       - name: Checks
         run: c2cciutils-checks
 
-      - uses: azure/setup-helm@v1
+      - name: Install helm
+        uses: azure/setup-helm@v1
       - run: helm dependency update .
       - run: helm lint .
-      - run: helm template --namespace=default test . > tests/actual.yaml
+      - run: helm template --namespace=default --values=tests/version.yaml test . > tests/actual.yaml
       - run: diff --ignore-trailing-space tests/actual.yaml tests/expected.yaml
       - run: helm lint --values=tests/full.yaml .
-      - run: helm template --namespace=default --values=tests/full.yaml test . > tests/full-actual.yaml
+      - run: helm template --namespace=default --values=tests/version.yaml --values=tests/full.yaml test . > tests/full-actual.yaml
       - run: diff --ignore-trailing-space tests/full-actual.yaml tests/full-expected.yaml
+
+      - name: Setup k3s/k3d
+        run: c2cciutils-k8s-install
+      - run: c2cciutils-k8s-db --script=tests/db.sql
+
+      - run: kubectl apply -f tests/expected.yaml
+      - run: c2cciutils-k8s-wait
+      - run: c2cciutils-k8s-logs
+        if: always()
+      - run: kubectl delete -f tests/expected.yaml || true
+
+      - run: kubectl apply -f tests/full-expected.yaml
+      - run: c2cciutils-k8s-wait
+      - run: c2cciutils-k8s-logs
+        if: always()
+      - run: kubectl delete -f tests/full-expected.yaml || true
+
+      - name: Clean the database
+        run: c2cciutils-k8s-db --cleanup
+        if: always()
 
       - name: Publish
         run: c2cciutils-publish

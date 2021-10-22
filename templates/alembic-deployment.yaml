@@ -18,20 +18,18 @@ spec:
         - name: alembic
           {{- include "common.containerConfig" ( dict "root" . "container" .Values.alembic ) | nindent 10 }}
           args:
-          {{- if .Values.alembic.mainStatic }}
             - bash
             - -c
+          {{- if .Values.alembic.mainStatic }}
             - alembic --name=main upgrade head && alembic --name=static upgrade head
           {{- else }}
-            - alembic
-            - --name=static
-            - upgrade
-            - head
+            - alembic --name=static upgrade head
           {{- end }}
       containers:
         - name: sleep
           image: busybox:latest
           args:
-            - sleep
-            - infinity
+            - tail
+            - -f
+            - /dev/null
 {{- end }}

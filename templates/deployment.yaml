@@ -25,14 +25,16 @@ spec:
           {{- include "common.containerConfig" ( dict "root" . "container" .Values.config ) | nindent 10 }}
           args: ['bash', '-c', 'cp -a /etc/geomapfish/* /etc/geomapfish-volume/ && cp -a /etc/gunicorn/* /etc/gunicorn-volume/']
           volumeMounts:
-            - mountPath: /etc/config-volume
+            - mountPath: /etc/geomapfish-volume
               name: configs
+            - mountPath: /etc/gunicorn-volume
+              name: gunicorn
       containers:
         - name: geoportal
           {{- include "common.containerConfig" ( dict "root" . "container" .Values ) | nindent 10 }}
           volumeMounts:
             - mountPath: /etc/geomapfish
-              name: geomapfish
+              name: configs
               readOnly: true
             - mountPath: /etc/gunicorn
               name: gunicorn
