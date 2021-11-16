@@ -12,6 +12,7 @@ timeout: 120 # request timeout in seconds
 healthCheckLevel: 0
 
 env: {}
+annotations: {}
 
 image: &image
   repository: camptocamp/geomapfishapp-geoportal
@@ -36,6 +37,7 @@ alembic:
   image: *image
   serviceName: alembic
   env: {}
+  annotations: {}
   resources: {}
 
 statsd:
@@ -46,6 +48,7 @@ statsd:
     tag: latest
     sha:
   env: {}
+  annotations: {}
   resources: {}
 
 tools:
@@ -56,6 +59,7 @@ tools:
     tag: latest
     sha:
   env: {}
+  annotations: {}
   resources: {}
 
 dbstats:
@@ -65,6 +69,7 @@ dbstats:
     tag: latest
     sha:
   env: {}
+  annotations: {}
   resources: {}
   schemas: []
   extraDBs: []
