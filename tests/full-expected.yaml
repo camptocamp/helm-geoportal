@@ -60,7 +60,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: test-geoportal
+  name: test-geoportal-prometheus
   labels:
     helm.sh/chart: geoportal-0.1.0
     app.kubernetes.io/version: "1.0"
@@ -401,10 +401,10 @@ spec:
                     ${TARGET}
 ---
 # Source: geoportal/templates/ingress.yaml
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: test-geoportal
+  name: test-geoportal-main
   labels:
     helm.sh/chart: geoportal-0.1.0
     app.kubernetes.io/version: "1.0"
@@ -414,10 +414,13 @@ metadata:
     app.kubernetes.io/component: main
 spec:
   rules:
-    - host: "gmf.local"
+    - host: gmf.local
       http:
         paths:
           - path: /
+            pathType: Prefix
             backend:
-              serviceName: test-geoportal
-              servicePort: 80
+              service:
+                name: test-geoportal
+                port:
+                  number: 80

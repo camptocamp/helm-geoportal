@@ -12,7 +12,8 @@ tools:
 ingress:
   enabled: true
   hosts:
-    - host: gmf.local
+    - name: main
+      host: gmf.local
       paths:
         - /
 

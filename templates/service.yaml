@@ -16,7 +16,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "common.fullname" ( dict "root" . "service" .Values ) }}
+  name: {{ include "common.fullname" ( dict "root" . "service" .Values ) }}-prometheus
   labels: {{ include "common.labels" ( dict "root" . "service" .Values ) | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
