@@ -1,3 +1,14 @@
+annotations:
+  reloader.stakater.com/auto: 'true'
+
+alembic:
+  annotations:
+    reloader.stakater.com/auto: 'true'
+
+tools:
+  annotations:
+    reloader.stakater.com/auto: 'true'
+
 ingress:
   enabled: true
   hosts:

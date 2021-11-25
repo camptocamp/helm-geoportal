@@ -92,6 +92,8 @@ metadata:
     app.kubernetes.io/name: geoportal
     app.kubernetes.io/instance: test
     app.kubernetes.io/component: alembic
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   strategy:
@@ -166,6 +168,8 @@ metadata:
     app.kubernetes.io/name: geoportal
     app.kubernetes.io/instance: test
     app.kubernetes.io/component: main
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   strategy:
@@ -300,6 +304,8 @@ metadata:
     app.kubernetes.io/name: geoportal
     app.kubernetes.io/instance: test
     app.kubernetes.io/component: tools
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   strategy:
@@ -349,6 +355,8 @@ metadata:
     app.kubernetes.io/name: geoportal
     app.kubernetes.io/instance: test
     app.kubernetes.io/component: main
+  annotations:
+    {}
 spec:
   schedule: "32 * * * *"
   successfulJobsHistoryLimit: 0
