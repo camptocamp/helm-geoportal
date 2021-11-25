@@ -47,7 +47,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: test-geoportal
+  name: test-geoportal-prometheus
   labels:
     helm.sh/chart: geoportal-0.1.0
     app.kubernetes.io/version: "1.0"
