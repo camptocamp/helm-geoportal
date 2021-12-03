@@ -11,11 +11,13 @@ tools:
 
 ingress:
   enabled: true
+  paths:
+    - /
   hosts:
     - name: main
       host: gmf.local
-      paths:
-        - /
+      tls:
+        secretName: mytls
 
 serviceAccount:
   create: true
