@@ -31,7 +31,7 @@ spec:
     - host: {{ $ingress_host.host }}
       http:
         paths:
-        {{- range $ingress_host.paths }}
+        {{- range $.Values.ingress.paths }}
           - path: {{ . }}
             {{- if semverCompare ">=1.14-0" $.Capabilities.KubeVersion.GitVersion }}
             pathType: Prefix
