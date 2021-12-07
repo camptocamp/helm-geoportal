@@ -413,6 +413,10 @@ metadata:
     app.kubernetes.io/instance: test
     app.kubernetes.io/component: main
 spec:
+  tls:
+    - hosts:
+        - gmf.local
+      secretName: mytls
   rules:
     - host: gmf.local
       http:
