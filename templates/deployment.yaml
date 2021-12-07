@@ -18,7 +18,7 @@ spec:
           "service" .Values
           "affinitySelector" (dict
             "app.kubernetes.io/instance" .Release.Name
-            "app.kubernetes.io/name" ( include "common.name" ( dict "root" . "service" .Values.sub ) )
+            "app.kubernetes.io/name" ( include "common.name" ( dict "root" . "service" .Values ) )
             "app.kubernetes.io/component" "main"
           )) | nindent 6 }}
       initContainers:
