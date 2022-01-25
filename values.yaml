@@ -36,6 +36,15 @@ alembic:
   annotations: {}
   resources: {}
 
+busybox:
+  image:
+    repository: busybox
+    tag: latest
+  serviceName: busybox
+  env: {}
+  annotations: {}
+  resources: {}
+
 statsd:
   serviceName: statsd
   enabled: true
