@@ -13,14 +13,7 @@ spec:
   template:
     metadata:
       labels: {{- include "common.selectorLabels" ( dict "root" . "service" .Values ) | nindent 8 }}
-    spec: {{- include "common.podConfig" ( dict
-          "root" .
-          "service" .Values
-          "affinitySelector" (dict
-            "app.kubernetes.io/instance" .Release.Name
-            "app.kubernetes.io/name" ( include "common.name" ( dict "root" . "service" .Values ) )
-            "app.kubernetes.io/component" "main"
-          )) | nindent 6 }}
+    spec: {{- include "common.podConfig" ( dict "root" . "service" .Values "affinitySelector" (dict "app.kubernetes.io/instance" .Release.Name "app.kubernetes.io/name" ( include "common.name" ( dict "root" . "service" .Values ) ) "app.kubernetes.io/component" "main" )) | nindent 6 }}
       initContainers:
         - name: config
           {{- include "common.containerConfig" ( dict "root" . "container" .Values.config ) | nindent 10 }}
