@@ -28,7 +28,7 @@ spec:
           {{- end }}
       containers:
         - name: sleep
-          image: busybox:latest
+          {{- include "common.containerConfig" ( dict "root" . "container" .Values.busybox ) | nindent 10 }}
           args:
             - tail
             - -f

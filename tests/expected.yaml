@@ -138,7 +138,14 @@ spec:
             - alembic --name=main upgrade head && alembic --name=static upgrade head
       containers:
         - name: sleep
-          image: busybox:latest
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 33
+          image: "busybox:latest"
+          imagePullPolicy: IfNotPresent
+          terminationMessagePolicy: FallbackToLogsOnError
+          resources:
+            {}
           args:
             - tail
             - -f
