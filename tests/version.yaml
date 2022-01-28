@@ -46,7 +46,3 @@ statsd:
 tools:
   image:
     tag: 2.7
-
-dbstats:
-  image:
-    tag: 4
