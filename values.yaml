@@ -67,18 +67,6 @@ tools:
   annotations: {}
   resources: {}
 
-dbstats:
-  enabled: true
-  image:
-    repository: camptocamp/c2cwsgiutils
-    tag: latest
-    sha:
-  env: {}
-  annotations: {}
-  resources: {}
-  schemas: []
-  extraDBs: []
-
 serviceAccount:
   # Specifies whether a service account should be created
   create: false
@@ -135,5 +123,4 @@ tolerations: []
 
 affinity: {}
 
-prometheus:
-  url: http://prometheus-pushgateway.gs-metrics.svc:9091/
+prometheus: true
