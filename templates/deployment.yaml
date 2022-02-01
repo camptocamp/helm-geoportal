@@ -26,6 +26,7 @@ spec:
       containers:
         - name: geoportal
           {{- include "common.containerConfig" ( dict "root" . "container" .Values ) | nindent 10 }}
+
           volumeMounts:
             - mountPath: /etc/geomapfish
               name: configs
@@ -33,24 +34,27 @@ spec:
             - mountPath: /etc/gunicorn
               name: gunicorn
               readOnly: true
+
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
+
           livenessProbe:
             httpGet:
-              path: "{{ .Values.entrypoint }}c2c/health_check?max_level=0"
+              path: "{{ .Values.entrypoint }}c2c/health_check?max_level={{ .Values.probe.liveness.healthCheckLevel }}"
               port: http
-            initialDelaySeconds: 10
-            timeoutSeconds: 30
-            periodSeconds: 20
+            initialDelaySeconds: {{ .Values.probe.liveness.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.probe.liveness.timeoutSeconds }}
+            periodSeconds: {{ .Values.probe.liveness.periodSeconds }}
           readinessProbe:
             httpGet:
-              path: "{{ .Values.entrypoint }}c2c/health_check?max_level={{ .Values.healthCheckLevel }}"
+              path: "{{ .Values.entrypoint }}c2c/health_check?max_level={{ .Values.probe.readiness.healthCheckLevel }}"
               port: http
-            initialDelaySeconds: 10
-            timeoutSeconds: 30
-            periodSeconds: 20
+            initialDelaySeconds: {{ .Values.probe.readiness.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.probe.readiness.timeoutSeconds }}
+            periodSeconds: {{ .Values.probe.readiness.periodSeconds }}
+
       volumes:
         - name: configs
           emptyDir: {}
