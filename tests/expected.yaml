@@ -256,6 +256,7 @@ spec:
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
             {}
+
           volumeMounts:
             - mountPath: /etc/geomapfish
               name: configs
@@ -263,24 +264,27 @@ spec:
             - mountPath: /etc/gunicorn
               name: gunicorn
               readOnly: true
+
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
+
           livenessProbe:
             httpGet:
               path: "/c2c/health_check?max_level=0"
               port: http
-            initialDelaySeconds: 10
+            initialDelaySeconds: 30
             timeoutSeconds: 30
             periodSeconds: 20
           readinessProbe:
             httpGet:
               path: "/c2c/health_check?max_level=0"
               port: http
-            initialDelaySeconds: 10
+            initialDelaySeconds: 30
             timeoutSeconds: 30
             periodSeconds: 20
+
       volumes:
         - name: configs
           emptyDir: {}
