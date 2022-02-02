@@ -6,7 +6,7 @@ metadata:
   labels: {{ include "common.labels" ( dict "root" . "service" .Values.alembic ) | nindent 4 }}
   annotations: {{- toYaml .Values.alembic.annotations | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   strategy:
     type: RollingUpdate
   selector:

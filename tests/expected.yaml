@@ -221,12 +221,10 @@ spec:
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
             {}
-          args: ['bash', '-c', 'cp -a /etc/geomapfish/* /etc/geomapfish-volume/ && cp -a /etc/gunicorn/* /etc/gunicorn-volume/']
+          args: ['bash', '-c', 'cp -a /etc/geomapfish/* /etc/geomapfish-volume/']
           volumeMounts:
             - mountPath: /etc/geomapfish-volume
               name: configs
-            - mountPath: /etc/gunicorn-volume
-              name: gunicorn
       containers:
         - name: geoportal
           securityContext:
@@ -261,9 +259,6 @@ spec:
             - mountPath: /etc/geomapfish
               name: configs
               readOnly: true
-            - mountPath: /etc/gunicorn
-              name: gunicorn
-              readOnly: true
 
           ports:
             - name: http
@@ -287,8 +282,6 @@ spec:
 
       volumes:
         - name: configs
-          emptyDir: {}
-        - name: gunicorn
           emptyDir: {}
 ---
 # Source: geoportal/templates/tools-deployment.yaml
