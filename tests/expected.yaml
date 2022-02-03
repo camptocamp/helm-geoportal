@@ -80,8 +80,6 @@ metadata:
     app.kubernetes.io/name: geoportal
     app.kubernetes.io/instance: test
     app.kubernetes.io/component: alembic
-  annotations:
-    {}
 spec:
   replicas: 1
   strategy:
@@ -163,8 +161,6 @@ metadata:
     app.kubernetes.io/name: geoportal
     app.kubernetes.io/instance: test
     app.kubernetes.io/component: main
-  annotations:
-    {}
 spec:
   replicas: 1
   strategy:
@@ -296,8 +292,6 @@ metadata:
     app.kubernetes.io/name: geoportal
     app.kubernetes.io/instance: test
     app.kubernetes.io/component: tools
-  annotations:
-    {}
 spec:
   replicas: 1
   strategy:
