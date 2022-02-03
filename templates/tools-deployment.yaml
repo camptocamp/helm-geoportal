@@ -4,9 +4,12 @@ kind: Deployment
 metadata:
   name: {{ include "common.fullname" ( dict "root" . "service" .Values.tools ) }}
   labels: {{ include "common.labels" ( dict "root" . "service" .Values.tools ) | nindent 4 }}
-  annotations: {{- toYaml .Values.tools.annotations | nindent 4 }}
+  {{- with .Values.tools.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   strategy:
     type: RollingUpdate
   selector:
@@ -14,6 +17,10 @@ spec:
   template:
     metadata:
       labels: {{- include "common.selectorLabels" ( dict "root" . "service" .Values.tools ) | nindent 8 }}
+      {{- with .Values.tools.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec: {{- include "common.podConfig" ( dict "root" . "service" .Values.tools ) | nindent 6 }}
       containers:
         - name: tools
