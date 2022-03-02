@@ -47,5 +47,21 @@ spec:
               servicePort: {{ $svcPort }}
               {{- end -}}
         {{- end }}
+        {{- range $custom := $.Values.ingress.custom }}
+          - path: "{{ $custom.path }}"
+            {{- if semverCompare ">=1.14-0" $.Capabilities.KubeVersion.GitVersion }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.14-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $custom.service }}
+                port:
+                  number: {{ $custom.port | default 80 }}
+              {{- else }}
+              serviceName: {{ $custom.service }}
+              servicePort: {{ $custom.port | default 80 }}
+              {{- end -}}
+        {{- end }}
 {{- end }}
 {{- end }}

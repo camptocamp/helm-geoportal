@@ -376,3 +376,10 @@ spec:
                 name: test-geoportal
                 port:
                   number: 80
+          - path: "/custom/"
+            pathType: Prefix
+            backend:
+              service:
+                name: geomapfish-env-version-custom-feedback
+                port:
+                  number: 80
