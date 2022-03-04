@@ -18,8 +18,9 @@ ingress:
       host: gmf.local
       tls:
         secretName: mytls
-  custom:
-    - path: /custom/
+  additionalPaths:
+    customFeedback:
+      path: /custom/
       service: geomapfish-env-version-custom-feedback
 
 serviceAccount:
