@@ -3,6 +3,27 @@ entries:
   geoportal:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2022-03-04T16:30:46.268318Z"
+    dependencies:
+    - name: common
+      repository: https://camptocamp.github.io/helm-common
+      version: 0.1.6
+    description: A Helm chart for geoportal
+    digest: a3183ed3f91b1f8e32902bd936d6cd11266792b51066b879c8440b0dcc9f80aa
+    home: http://geomapfish.org/
+    icon: http://geomapfish.org/images/brand/logo.png
+    maintainers:
+    - email: info@camptocamp.com
+      name: Camptocamp-geospatial
+      url: https://github.com/camptocamp/c2cgeoportal
+    name: geoportal
+    sources:
+    - https://github.com/camptocamp/c2cgeoportal
+    urls:
+    - https://github.com/camptocamp/helm-geoportal/releases/download/0.1.12/geoportal-0.1.12.tgz
+    version: 0.1.12
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2022-03-03T14:40:13.50045649Z"
     dependencies:
     - name: common
@@ -237,4 +258,4 @@ entries:
     urls:
     - https://github.com/camptocamp/helm-geoportal/releases/download/0.1.0/geoportal-0.1.0.tgz
     version: 0.1.0
-generated: "2022-03-03T14:40:13.500526695Z"
+generated: "2022-03-04T16:30:46.268394801Z"
