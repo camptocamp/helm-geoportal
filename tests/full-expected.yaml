@@ -236,10 +236,16 @@ spec:
           terminationMessagePolicy: FallbackToLogsOnError
           resources:
             {}
-          args: ['bash', '-c', 'cp -a /etc/geomapfish/* /etc/geomapfish-volume/']
+          args:
+            - bash
+            - -c
+            - cp -a /etc/geomapfish/* /etc/geomapfish-volume/ &&
+              cp -a /usr/local/tomcat/webapps/ROOT/print-apps/* /etc/print-volume/
           volumeMounts:
             - mountPath: /etc/geomapfish-volume
-              name: configs
+              name: geomapfish
+            - mountPath: /etc/print-volume
+              name: print
       containers:
         - name: geoportal
           securityContext:
@@ -272,7 +278,10 @@ spec:
 
           volumeMounts:
             - mountPath: /etc/geomapfish
-              name: configs
+              name: geomapfish
+              readOnly: true
+            - mountPath: /usr/local/tomcat/webapps/ROOT/print-apps
+              name: print
               readOnly: true
 
           ports:
@@ -296,7 +305,9 @@ spec:
             periodSeconds: 20
 
       volumes:
-        - name: configs
+        - name: geomapfish
+          emptyDir: {}
+        - name: print
           emptyDir: {}
 ---
 # Source: geoportal/templates/tools-deployment.yaml
